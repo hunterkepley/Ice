@@ -6,7 +6,7 @@ Made for Open Jam 17, theme: "Leave A Mark"
 
 Control penguins using WASD and arrow keys
 
-All made in golang using the [Pixel](www.github.com/faiface/pixel) library
+All made in golang using the [Pixel](https://www.github.com/faiface/pixel) library
 
 ## Requirements
 
@@ -25,7 +25,7 @@ are same as for [GLFW](https://github.com/go-gl/glfw).
 [#7](https://github.com/faiface/pixel/issues/7). This issue is probably not related to Pixel.
 **Upgrading to Go 1.8.1 fixes the issue.**
 
-The above was taken from the [Pixel README.md](www.github.com/faiface/pixel/README.md)
+The above was taken from the [Pixel README.md](https://www.github.com/faiface/pixel/README.md)
 
 * Use `go get github.com/faiface/pixel` !
 
