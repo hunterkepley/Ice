@@ -28,9 +28,9 @@ func (t Tile) render(imd *imdraw.IMDraw) { // Draws a tile
 	case 0:
 		imd.Color = colornames.Snow
 	case 1:
-		imd.Color = colornames.Aqua
+		imd.Color = colornames.Midnightblue
 	case 2:
-		imd.Color = colornames.Lightsteelblue
+		imd.Color = colornames.Maroon
 	default:
 	}
 	dPos1, dPos2, dSize := t.getRectangle()

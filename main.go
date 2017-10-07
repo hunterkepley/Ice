@@ -25,26 +25,26 @@ const (
 )
 
 func drawLines(w int, h int, imd *imdraw.IMDraw) { // Draws the lines separating the tiles
-	amountX := (w / TileSize) - 1
-	amountY := (h / TileSize) - 1
-	imd.Color = colornames.Black
+	amountX := (w / TileSize) - 1 // Amount of lines on the x axis
+	amountY := (h / TileSize) - 1 // Amount of lines on the y axis
+	imd.Color = colornames.Ivory
 	for i := 0; i < amountX; i++ {
 		p1 := pixel.V(float64((i+1)*TileSize), 0)
 		p2 := pixel.V(float64((i+1)*TileSize), float64(h))
 		imd.Push(p1, p2)
-		imd.Line(2)
+		imd.Line(1)
 	}
 	for i := 0; i < amountY; i++ {
 		p1 := pixel.V(0, float64((i+1)*TileSize))
 		p2 := pixel.V(float64(w), float64((i+1)*TileSize))
 		imd.Push(p1, p2)
-		imd.Line(3)
+		imd.Line(1)
 	}
 }
 
 func run() {
 	cfg := pixelgl.WindowConfig{
-		Title:  "Open Jam 17",
+		Title:  "Ice!",
 		Bounds: pixel.R(0, 0, WinWidth, WinHeight),
 	}
 	win, err := pixelgl.NewWindow(cfg)
@@ -61,8 +61,8 @@ func run() {
 	}
 
 	// Create players
-	players = append(players, newPlayer(6, "art/player1.png"))
-	players = append(players, newPlayer(190, "art/player2.png"))
+	players = append(players, newPlayer(30, "art/player1.png", 0))
+	players = append(players, newPlayer(162, "art/player2.png", 1))
 
 	win.SetSmooth(false)
 
@@ -85,7 +85,7 @@ func run() {
 		imd.Draw(win) // Draw shapes
 
 		for i := 0; i < len(players); i++ {
-			players[i].update(tiles)
+			players[i].update(&tiles[players[i].tileID], win)
 			players[i].render(win)
 		}
 
