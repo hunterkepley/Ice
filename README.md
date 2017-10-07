@@ -25,7 +25,7 @@ are same as for [GLFW](https://github.com/go-gl/glfw).
 [#7](https://github.com/faiface/pixel/issues/7). This issue is probably not related to Pixel.
 **Upgrading to Go 1.8.1 fixes the issue.**
 
-The above was taken from the [Pixel README.md](https://www.github.com/faiface/pixel/README.md)
+The above was taken from the [Pixel README.md](https://github.com/faiface/pixel/blob/master/README.md)
 
 * Use `go get github.com/faiface/pixel` !
 
