@@ -61,8 +61,8 @@ func run() {
 	}
 
 	// Create players
-	players = append(players, newPlayer(30, "art/player1.png", 0))
-	players = append(players, newPlayer(162, "art/player2.png", 1))
+	players = append(players, newPlayer(pixel.V(tiles[30].pos.X+float64(TileSize/2), tiles[30].pos.Y+float64(TileSize/2)), 30, "art/player1.png", 0))
+	players = append(players, newPlayer(pixel.V(tiles[162].pos.X+float64(TileSize/2), tiles[162].pos.Y+float64(TileSize/2)), 162, "art/player2.png", 1))
 
 	win.SetSmooth(false)
 
@@ -85,7 +85,7 @@ func run() {
 		imd.Draw(win) // Draw shapes
 
 		for i := 0; i < len(players); i++ {
-			players[i].update(&tiles[players[i].tileID], win)
+			players[i].update(&tiles[players[i].tileID], win, dt)
 			players[i].render(win)
 		}
 
