@@ -9,6 +9,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
 )
 
@@ -17,6 +18,7 @@ var (
 	players []Player
 	frames  = 0
 	second  = time.Tick(time.Second)
+	ingame  = false
 )
 
 const (
@@ -66,27 +68,93 @@ func run() {
 
 	win.SetSmooth(false)
 
+	face, err := loadTTF("fonts/chintzy.ttf", 35)
+	if err != nil {
+		panic(err)
+	}
+
+	basicAtlas := text.NewAtlas(face, text.ASCII)
+	timerTxt := text.New(pixel.V(300, 300), basicAtlas)
+	winTxt := text.New(pixel.V(300, 300), basicAtlas)
+	timerTxt.Color = colornames.Darkturquoise
+	winTxt.Color = colornames.Gold
+
+	amt1 := 0 // Amount of tiles at the end [p1]
+	amt2 := 0 // Amount of tiles at the end [p2]
+
 	last := time.Now()
+	timer := 120.0
+	restartTimer := 5.0
 	for !win.Closed() {
-		dt := time.Since(last).Seconds()
-		_ = dt
-		last = time.Now()
+		if ingame {
+			dt := time.Since(last).Seconds()
+			_ = dt
+			last = time.Now()
 
-		imd.Clear()
+			imd.Clear()
 
-		win.Clear(colornames.Seashell)
+			win.Clear(colornames.Seashell)
 
-		for i := 0; i < len(tiles); i++ {
-			tiles[i].render(imd)
-		}
+			for i := 0; i < len(tiles); i++ {
+				tiles[i].render(imd)
+			}
 
-		drawLines(WinWidth, WinHeight, imd)
+			drawLines(WinWidth, WinHeight, imd)
 
-		imd.Draw(win) // Draw shapes
+			imd.Draw(win) // Draw shapes
 
-		for i := 0; i < len(players); i++ {
-			players[i].update(&tiles[players[i].tileID], win, dt)
-			players[i].render(win)
+			for i := 0; i < len(players); i++ {
+				players[i].update(&tiles[players[i].tileID], win, dt)
+				players[i].render(win)
+			}
+
+			timer -= 1.0 * dt
+
+			timerTxt := text.New(pixel.V(300, WinHeight-130), basicAtlas)
+
+			if timer > 0 {
+				timerTxt = text.New(pixel.V(280, WinHeight-130), basicAtlas)
+				timerTxt.Color = colornames.Darkturquoise
+				fmt.Fprintln(timerTxt, fmt.Sprintf("Time left: %d", int(timer)))
+			} else {
+				timerTxt = text.New(pixel.V(300, WinHeight-130), basicAtlas)
+				timerTxt.Color = colornames.Crimson
+				fmt.Fprintln(timerTxt, "Game Over!")
+				for i := 0; i < len(tiles); i++ {
+					if tiles[i].state == 1 {
+						amt1++
+					} else if tiles[i].state == 2 {
+						amt2++
+					}
+				}
+				if amt1 > amt2 {
+					winTxt = text.New(pixel.V(280, WinHeight-130), basicAtlas)
+					fmt.Fprintln(timerTxt, "Player 1 wins!")
+					winTxt.Draw(win, pixel.IM.Moved(pixel.V(300, WinHeight-160)))
+				} else if amt1 < amt2 {
+					winTxt = text.New(pixel.V(280, WinHeight-130), basicAtlas)
+					fmt.Fprintln(timerTxt, "Player 2 wins!")
+					winTxt.Draw(win, pixel.IM.Moved(pixel.V(300, WinHeight-160)))
+				} else {
+					winTxt = text.New(pixel.V(280, WinHeight-130), basicAtlas)
+					fmt.Fprintln(timerTxt, "Tied!")
+					winTxt.Draw(win, pixel.IM.Moved(pixel.V(300, WinHeight-160)))
+				}
+				amt1 = 0
+				amt2 = 0
+
+			}
+			timerTxt.Draw(win, pixel.IM.Moved(pixel.V(10, 100)))
+		} else {
+			last = time.Now()
+			win.Clear(colornames.Darkgoldenrod)
+			if win.Pressed(pixelgl.KeyEnter) {
+				timer = 10
+				restartTimer = 5
+				amt1 = 0
+				amt2 = 0
+				ingame = true
+			}
 		}
 
 		win.Update()

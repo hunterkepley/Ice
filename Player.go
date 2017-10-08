@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	PlayerSpeed = 250
+	PlayerSpeed = 300
 )
 
 type Player struct {
