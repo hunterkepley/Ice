@@ -12,7 +12,7 @@ All made in golang using the [Pixel](https://www.github.com/faiface/pixel) libra
 
 * Golang
 
-Install golang for your distro
+Install golang for your distro, [Go's Website](golang.org) is a great place to look at
 
 * [PixelGL](https://godoc.org/github.com/faiface/pixel/pixelgl) backend uses OpenGL to render
 graphics. Because of that, OpenGL development libraries are needed for compilation. The dependencies
