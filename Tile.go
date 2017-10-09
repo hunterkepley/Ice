@@ -14,13 +14,19 @@ const (
 )
 
 type Tile struct {
-	state int // 0 = nothing, 1 = purple, 2 = gray
-	pos   pixel.Vec
-	ID    int
+	state   int // 0 = nothing, 1 = purple, 2 = gray
+	pos     pixel.Vec
+	ID      int
+	utTimer float64
 }
 
-func (t *Tile) update() { // Updates a tile
-
+func (t *Tile) update(dt float64) { // Updates a tile
+	if t.utTimer > 0 && t.state > 2 {
+		t.utTimer -= 1 * dt
+	} else if t.utTimer <= 0 && t.state > 2 {
+		t.state -= 2
+		t.utTimer = 3.0
+	}
 }
 
 func (t Tile) render(imd *imdraw.IMDraw) { // Draws a tile
@@ -31,6 +37,10 @@ func (t Tile) render(imd *imdraw.IMDraw) { // Draws a tile
 		imd.Color = colornames.Midnightblue
 	case 2:
 		imd.Color = colornames.Maroon
+	case 3:
+		imd.Color = colornames.Aqua
+	case 4:
+		imd.Color = colornames.Red
 	default:
 	}
 	dPos1, dPos2, dSize := t.getRectangle()

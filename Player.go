@@ -23,6 +23,7 @@ type Player struct {
 	ID           int // 0 == player 1 [wasd], 1 == player 2 [arrow keys]
 	nextTileID   int
 	distanceLeft float64
+	stunTimer    float64
 }
 
 func newPlayer(pos pixel.Vec, tID int, loc string, ID int) Player { // Constructor for Player
@@ -32,22 +33,34 @@ func newPlayer(pos pixel.Vec, tID int, loc string, ID int) Player { // Construct
 	}
 	sprite := pixel.NewSprite(pic, pic.Bounds())
 	if ID == 0 {
-		return Player{pos, "right", pixel.V(50, 50), tID, pic, sprite, false, true, ID, 0, 50}
+		return Player{pos, "right", pixel.V(50, 50), tID, pic, sprite, false, true, ID, 0, 50, 2.5}
 	} else if ID == 1 {
-		return Player{pos, "left", pixel.V(50, 50), tID, pic, sprite, false, true, ID, 0, 50}
+		return Player{pos, "left", pixel.V(50, 50), tID, pic, sprite, false, true, ID, 0, 50, 2.5}
 	}
 
-	return Player{pos, "right", pixel.V(50, 50), tID, pic, sprite, false, true, ID, 0, 50}
+	return Player{pos, "right", pixel.V(50, 50), tID, pic, sprite, false, true, ID, 0, 50, 2.5}
 
 	// Returns a basic Player
 }
 
 func (p *Player) update(tile *Tile, win *pixelgl.Window, dt float64) { // Updates a tile
 	if !p.moving {
-		tile.state = p.ID + 1
+		if (tile.state == 4 && p.ID+1 == 1) || (tile.state == 3 && p.ID+1 == 2) {
+			p.stunTimer -= 1 * dt
+		}
+		if p.stunTimer < 2.5 && p.stunTimer > 0 {
+			p.stunTimer -= 1 * dt
+			p.canMove = false
+		} else if p.stunTimer < 2.5 && p.stunTimer <= 0 {
+			p.stunTimer = 2.5
+			tile.state -= 2
+			p.canMove = true
+		}
+		tile.state = p.ID + 3
 		// TileSize/2 bc the x,y is at the center of the picture
 	} else {
 	}
+
 	if p.canMove {
 		if !p.moving {
 			if p.ID == 0 {

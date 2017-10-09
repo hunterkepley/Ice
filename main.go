@@ -14,11 +14,12 @@ import (
 )
 
 var (
-	tiles   []Tile
-	players []Player
-	frames  = 0
-	second  = time.Tick(time.Second)
-	ingame  = false
+	tiles    []Tile
+	players  []Player
+	frames   = 0
+	second   = time.Tick(time.Second)
+	ingame   = false
+	menuPlay = true
 )
 
 const (
@@ -58,7 +59,7 @@ func run() {
 
 	for x := 0; x < TilesX; x++ {
 		for y := 0; y < TilesY; y++ { // Tiles go up, then to the next column
-			tiles = append(tiles, Tile{0, pixel.V(float64(x*TileSize), float64(y*TileSize)), len(tiles)})
+			tiles = append(tiles, Tile{0, pixel.V(float64(x*TileSize), float64(y*TileSize)), len(tiles), 3.0})
 		}
 	}
 
@@ -67,6 +68,33 @@ func run() {
 	players = append(players, newPlayer(pixel.V(tiles[162].pos.X+float64(TileSize/2), tiles[162].pos.Y+float64(TileSize/2)), 162, "art/player2.png", 1))
 
 	win.SetSmooth(false)
+
+	// Menu definitions
+	menuPic, err := loadPicture("art/bg.png")
+	if err != nil {
+		panic(err)
+	}
+	menubg := pixel.NewSprite(menuPic, menuPic.Bounds())
+
+	playPic, err := loadPicture("art/playButton.png")
+	if err != nil {
+		panic(err)
+	}
+	playButton := pixel.NewSprite(playPic, playPic.Bounds())
+
+	quitPic, err := loadPicture("art/quitButton.png")
+	if err != nil {
+		panic(err)
+	}
+	quitButton := pixel.NewSprite(quitPic, quitPic.Bounds())
+
+	arrowPic, err := loadPicture("art/arrow.png")
+	if err != nil {
+		panic(err)
+	}
+	arrow := pixel.NewSprite(arrowPic, arrowPic.Bounds())
+
+	// end ^
 
 	face, err := loadTTF("fonts/chintzy.ttf", 35)
 	if err != nil {
@@ -96,6 +124,9 @@ func run() {
 			win.Clear(colornames.Seashell)
 
 			for i := 0; i < len(tiles); i++ {
+				if timer > 0 {
+					tiles[i].update(dt)
+				}
 				tiles[i].render(imd)
 			}
 
@@ -104,7 +135,9 @@ func run() {
 			imd.Draw(win) // Draw shapes
 
 			for i := 0; i < len(players); i++ {
-				players[i].update(&tiles[players[i].tileID], win, dt)
+				if timer > 0 {
+					players[i].update(&tiles[players[i].tileID], win, dt)
+				}
 				players[i].render(win)
 			}
 
@@ -117,23 +150,39 @@ func run() {
 				timerTxt.Color = colornames.Darkturquoise
 				fmt.Fprintln(timerTxt, fmt.Sprintf("Time left: %d", int(timer)))
 			} else {
+				restartTimer -= 1 * dt
+				if restartTimer <= 0 { // Reset
+					for i := 0; i < len(tiles); i++ {
+						tiles[i].state = 0
+					}
+					players[0].tileID = 30
+					players[1].tileID = 162
+					players[0].pos = pixel.V(tiles[30].pos.X+float64(TileSize/2), tiles[30].pos.Y+float64(TileSize/2))
+					players[1].pos = pixel.V(tiles[162].pos.X+float64(TileSize/2), tiles[162].pos.Y+float64(TileSize/2))
+					players[0].nextTileID = 30
+					players[1].nextTileID = 162
+					players[0].dir = "right"
+					players[1].dir = "left"
+					timer = 120
+					restartTimer = 5
+				}
 				timerTxt = text.New(pixel.V(300, WinHeight-130), basicAtlas)
-				timerTxt.Color = colornames.Crimson
+				timerTxt.Color = colornames.Chocolate
 				fmt.Fprintln(timerTxt, "Game Over!")
 				for i := 0; i < len(tiles); i++ {
-					if tiles[i].state == 1 {
+					if tiles[i].state == 1 || tiles[i].state == 3 {
 						amt1++
-					} else if tiles[i].state == 2 {
+					} else if tiles[i].state == 2 || tiles[i].state == 4 {
 						amt2++
 					}
 				}
 				if amt1 > amt2 {
 					winTxt = text.New(pixel.V(280, WinHeight-130), basicAtlas)
-					fmt.Fprintln(timerTxt, "Player 1 wins!")
+					fmt.Fprintln(timerTxt, fmt.Sprintf("Blue wins!\n [%d-%d]", amt1, amt2))
 					winTxt.Draw(win, pixel.IM.Moved(pixel.V(300, WinHeight-160)))
 				} else if amt1 < amt2 {
 					winTxt = text.New(pixel.V(280, WinHeight-130), basicAtlas)
-					fmt.Fprintln(timerTxt, "Player 2 wins!")
+					fmt.Fprintln(timerTxt, fmt.Sprintf("Red wins!\n [%d-%d]", amt1, amt2))
 					winTxt.Draw(win, pixel.IM.Moved(pixel.V(300, WinHeight-160)))
 				} else {
 					winTxt = text.New(pixel.V(280, WinHeight-130), basicAtlas)
@@ -148,12 +197,38 @@ func run() {
 		} else {
 			last = time.Now()
 			win.Clear(colornames.Darkgoldenrod)
-			if win.Pressed(pixelgl.KeyEnter) {
-				timer = 10
+
+			mat := pixel.IM.Moved(pixel.V(0+(menubg.Frame().Size().X/2), 0+(menubg.Frame().Size().Y/2)))
+			menubg.Draw(win, mat)
+
+			mat = pixel.IM.Moved(pixel.V(0+(playButton.Frame().Size().X/2), 350+(playButton.Frame().Size().Y/2)))
+			playButton.Draw(win, mat)
+
+			mat = pixel.IM.Moved(pixel.V(0+(quitButton.Frame().Size().X/2), (350-playButton.Frame().Size().Y)+(playButton.Frame().Size().Y/2)))
+			quitButton.Draw(win, mat)
+
+			if menuPlay {
+				mat = pixel.IM.Moved(pixel.V((10+(quitButton.Frame().Size().X))+(arrow.Frame().Size().X/2), 350+(arrow.Frame().Size().Y/2)))
+			} else {
+				mat = pixel.IM.Moved(pixel.V((10+(quitButton.Frame().Size().X))+(arrow.Frame().Size().X/2), (350-playButton.Frame().Size().Y)+(arrow.Frame().Size().Y/2)))
+			}
+			arrow.Draw(win, mat)
+
+			if win.JustPressed(pixelgl.KeyDown) || win.JustPressed(pixelgl.KeyUp) {
+				if menuPlay {
+					menuPlay = false
+				} else {
+					menuPlay = true
+				}
+			}
+			if win.JustPressed(pixelgl.KeyEnter) && menuPlay {
+				timer = 120
 				restartTimer = 5
 				amt1 = 0
 				amt2 = 0
 				ingame = true
+			} else if win.JustPressed(pixelgl.KeyEnter) && !menuPlay {
+				win.Destroy()
 			}
 		}
 
