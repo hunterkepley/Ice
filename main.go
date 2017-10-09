@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	_ "image"
+	_ "image/jpeg"
+	_ "image/png"
 	_ "os"
 	"time"
 
@@ -70,7 +72,7 @@ func run() {
 	win.SetSmooth(false)
 
 	// Menu definitions
-	menuPic, err := loadPicture("art/bg.png")
+	menuPic, err := loadPicture("art/bg.jpg")
 	if err != nil {
 		panic(err)
 	}

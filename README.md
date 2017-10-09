@@ -10,7 +10,11 @@ All made in golang using the [Pixel](https://www.github.com/faiface/pixel) libra
 
 ## Requirements
 
-[PixelGL](https://godoc.org/github.com/faiface/pixel/pixelgl) backend uses OpenGL to render
+* Golang
+
+Install golang for your distro
+
+* [PixelGL](https://godoc.org/github.com/faiface/pixel/pixelgl) backend uses OpenGL to render
 graphics. Because of that, OpenGL development libraries are needed for compilation. The dependencies
 are same as for [GLFW](https://github.com/go-gl/glfw).
 
@@ -28,6 +32,8 @@ are same as for [GLFW](https://github.com/go-gl/glfw).
 The above was taken from the [Pixel README.md](https://github.com/faiface/pixel/blob/master/README.md)
 
 * Use `go get github.com/faiface/pixel` !
+* There might be certain pieces of libraries missing like `golang.org/x/image/colornames` -- just
+  grab them easily with `go get golang.org/x/image/colornames` for example.
 
 ## Running ICE!
 
