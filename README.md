@@ -1,5 +1,7 @@
 # ICE!
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 A game about covering as much ground as you can!
 
 Made for Open Jam 17, theme: "Leave A Mark"
